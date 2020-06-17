@@ -2,8 +2,11 @@ package com.revature.web;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Scanner;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +20,7 @@ import com.revature.controllers.UserController;
 import com.revature.exceptions.AuthorizationException;
 import com.revature.exceptions.NotLoggedInException;
 import com.revature.models.Account;
+import com.revature.models.Role;
 import com.revature.models.User;
 import com.revature.services.UserService;
 import com.revature.templates.LoginTemplate;
@@ -78,13 +82,11 @@ public class FrontController extends HttpServlet {
 				} else if(portions.length == 3 && portions[1].equals("owner")) {
 					int id = Integer.parseInt(portions[2]);
 					AuthService.guard(req.getSession(false), id, "Employee", "Admin");
-					Account a = accountController.findAccountByUserId(id);
+					List<Account> a = accountController.findAccountByUserId(id);
 					res.setStatus(200);
 					res.getWriter().println(om.writeValueAsString(a));
+				}
 				break;
-			
-				
-				
 			}
 		} catch(AuthorizationException e) {
 			res.setStatus(401);
@@ -151,6 +153,14 @@ public class FrontController extends HttpServlet {
 				res.setContentType("application/json");
 			
 				break;
+			case "users":
+				int id = Integer.parseInt(portions[0]);
+				AuthService.guard(req.getSession(false), id, "Employee", "Admin");
+				List<Account> a = accountController.findAccountByUserId(id);
+				res.setStatus(200);
+				res.getWriter().println(om.writeValueAsString(a));
+				
+				break;
 			}
 		} catch(NotLoggedInException e) {
 			res.setStatus(401);
@@ -158,4 +168,63 @@ public class FrontController extends HttpServlet {
 			res.getWriter().println(om.writeValueAsString(message));
 		}
 	}
+	
+	@Override
+	protected void doPut(HttpServletRequest req, HttpServletResponse res)
+		throws ServletException, IOException {
+		res.setContentType("application/json");
+		res.setStatus(404);
+		final String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", "");
+		System.out.println(URI);
+		String[] portions = URI.split("/");
+		try {
+			switch(portions[0]) {
+			case "users":
+					AuthService.guard(req.getSession(false), "Employee", "Admin");
+					String s;
+					Scanner in = new Scanner(System.in);
+					System.out.println("Enter the Id number");
+					s = in.nextLine();
+					int idNum = Integer.parseInt(s);
+					Scanner inString = new Scanner(System.in);
+					System.out.println("Enter the information you want to update. Follow the pattern: username, password, first name, last name, email, role(num)");
+					String dataString = in.nextLine();
+					//System.out.println(dataString);
+					String[] inputData = dataString.split(",");
+					//System.out.println(inputData[5]);
+					String roleName = null;
+					int roleId = Integer.parseInt(inputData[5]);
+					switch (roleId) {
+						case 1:
+							roleName = "Pending";
+							break;
+						case 2:
+							roleName = "Open";
+							break;
+						case 3:
+							roleName = "Closed";
+							break;
+						case 4:
+							roleName = "Denied";
+							break;
+					}
+					Role role = new Role(roleId, roleName);
+					User u = new User(idNum, inputData[0], inputData[1], inputData[2], inputData[3], inputData[4], role);
+					
+					int number = userController.update(u);
+					res.setStatus(200);
+					res.getWriter().println(om.writeValueAsString(u));
+					if(number == 0) {
+						System.out.println("You have successfully updated the User");
+					}
+					
+					break;
+				}
+		}catch(NotLoggedInException e) {
+			res.setStatus(401);
+			MessageTemplate message = new MessageTemplate("The incoming token has expired");
+			res.getWriter().println(om.writeValueAsString(message));
+		}
+	}
 }
+

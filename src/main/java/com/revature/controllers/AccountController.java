@@ -29,7 +29,7 @@ public class AccountController {
 		}
 		
 		
-		public Account findAccountByUserId(int id) {
+		public List<Account> findAccountByUserId(int id) {
 			return accountService.findAccountByUserId(id);
 		}
 }

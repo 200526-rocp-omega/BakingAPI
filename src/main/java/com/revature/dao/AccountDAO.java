@@ -111,10 +111,55 @@ public class AccountDAO implements IAccountDAO {
 	}
 	
 	@Override
-	public Account findAccountByUserId(int id) {
-		
-		
-		return null;
+	public List<Account> findAccountByUserId(int id) {
+		List<Account> allAccounts = new ArrayList<>();
+        try (Connection conn = ConnectionUtil.getConnection()) {
+            String sql = "SELECT * FROM ACCOUNTS WHERE ACCOUNTS.id IN (SELECT account_id FROM USERS_ACCOUNTS WHERE USERS_ACCOUNTS.user_id = ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, id);
+            
+            ResultSet rs = stmt.executeQuery();
+            
+            while(rs.next()) {
+				//int accountId = rs.getInt("id");
+            	String status = "";
+            	String type = "";
+            	Double balance = rs.getDouble("balance");
+				int statusIdNum = rs.getInt("status_id");
+				switch (statusIdNum) {
+					case 1:
+						status = "Pending";
+						break;
+					case 2:
+						status = "Open";
+						break;
+					case 3:
+						status = "Closed";
+						break;
+					case 4:
+						status = "Denied";
+						break;
+				}
+				int typeid = rs.getInt("type_id");
+				if (typeid ==1) {
+					type = "Checking";
+				} else {
+					type = "Savings";
+				}
+				
+				AccountStatus accStatus = new AccountStatus(statusIdNum, status);
+				AccountType accType = new AccountType(typeid, type);
+				Account a = new Account(id, balance, accStatus, accType);
+				
+				allAccounts.add(a);
+				
+            }
+        } catch(SQLException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+
+		return allAccounts;
 	}
 
 	@Override

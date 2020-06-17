@@ -140,8 +140,27 @@ public class UserDAO implements IUserDAO {
 
 	@Override
 	public int update(User u) {
-		// TODO Auto-generated method stub
-		return 0;
+		try (Connection conn = ConnectionUtil.getConnection()){
+			String sql = "UPDATE USERS SET id = ?, username = ?, password = ?, first_name = ?, last_name = ?, email = ?, role_id = ? WHERE id = ?";
+			
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, u.getId());
+			stmt.setString(2, u.getUsername());
+			stmt.setString(3, u.getPassword());
+			stmt.setString(4, u.getFirstName());
+			stmt.setString(5, u.getLastName());
+			stmt.setString(6, u.getEmail());
+			stmt.setInt(7, u.getRole().getId());
+			stmt.setInt(8, u.getId());
+			
+			
+			return stmt.executeUpdate();
+			
+			} catch(SQLException e) {
+				e.printStackTrace();
+			}
+			return 0;
+		
 	}
 
 	@Override

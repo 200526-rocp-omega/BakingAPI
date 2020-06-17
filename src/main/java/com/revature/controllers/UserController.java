@@ -27,6 +27,9 @@ public class UserController {
 			
 		}
 	
+		public int update(User u)  {
+			return userService.update(u);
+		}
 		
 		
 		public List<User> findAllUsers() {

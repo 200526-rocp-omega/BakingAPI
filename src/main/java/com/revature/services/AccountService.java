@@ -22,7 +22,7 @@ public class AccountService {
 		return adao.findByStatus(statusId);
 	}
 	
-	public Account findAccountByUserId(int id) {
+	public List<Account> findAccountByUserId(int id) {
 		return adao.findAccountByUserId(id);
 	}
 }
