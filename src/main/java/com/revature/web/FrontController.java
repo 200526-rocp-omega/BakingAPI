@@ -20,6 +20,8 @@ import com.revature.controllers.UserController;
 import com.revature.exceptions.AuthorizationException;
 import com.revature.exceptions.NotLoggedInException;
 import com.revature.models.Account;
+import com.revature.models.AccountStatus;
+import com.revature.models.AccountType;
 import com.revature.models.Role;
 import com.revature.models.User;
 import com.revature.services.UserService;
@@ -151,15 +153,51 @@ public class FrontController extends HttpServlet {
 				res.setStatus(200);
 				writer.println(om.writeValueAsString(u));
 				res.setContentType("application/json");
-			
 				break;
-			case "users":
-				int id = Integer.parseInt(portions[0]);
-				AuthService.guard(req.getSession(false), id, "Employee", "Admin");
-				List<Account> a = accountController.findAccountByUserId(id);
-				res.setStatus(200);
-				res.getWriter().println(om.writeValueAsString(a));
-				
+			
+			case "accounts":
+				AuthService.guard(req.getSession(false), "Employee", "Admin");
+				Scanner in = new Scanner(System.in);
+				Scanner inString = new Scanner(System.in);
+				System.out.println("Enter the New Account information: balance, statusId, typeId");
+				String dataString = in.nextLine();
+				String[] inputData = dataString.split(",");
+				String status = null;
+				String type = null;
+				double accBalance = Double.parseDouble(inputData[0]);
+				int statusId = Integer.parseInt(inputData[1]);
+				int typeId = Integer.parseInt(inputData[2]);
+				switch (statusId) {
+					case 1:
+						status = "Pending";
+						break;
+					case 2:
+						status = "Open";
+						break;
+					case 3:
+						status = "Closed";
+						break;
+					case 4:
+						status = "Denied";
+						break;
+				}
+				if(typeId == 1) {
+					type = "Checking";
+				} else {
+					type =  "Savings";
+				}
+
+			AccountStatus accStatus = new AccountStatus(statusId, status);
+			AccountType accType = new AccountType(typeId, type);
+
+			Account a = new Account(0, accBalance, accStatus, accType);
+			
+			int number = accountController.createAccount(a);
+			res.setStatus(200);
+			res.getWriter().println(om.writeValueAsString(a));
+			if(number == 0) {
+				System.out.println("You have successfully updated the User");
+			}
 				break;
 			}
 		} catch(NotLoggedInException e) {
@@ -189,9 +227,7 @@ public class FrontController extends HttpServlet {
 					Scanner inString = new Scanner(System.in);
 					System.out.println("Enter the information you want to update. Follow the pattern: username, password, first name, last name, email, role(num)");
 					String dataString = in.nextLine();
-					//System.out.println(dataString);
 					String[] inputData = dataString.split(",");
-					//System.out.println(inputData[5]);
 					String roleName = null;
 					int roleId = Integer.parseInt(inputData[5]);
 					switch (roleId) {

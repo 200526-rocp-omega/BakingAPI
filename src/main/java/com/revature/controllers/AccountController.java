@@ -13,15 +13,10 @@ public class AccountController {
 			return accountService.findAccountById(id);
 			
 		}
-	
-		
 		
 		public List<Account> findAllAccounts() {
-			return accountService.findAllAccounts();
-			
-			
+			return accountService.findAllAccounts();	
 		}
-		
 		
 		
 		public List<Account> findByStatus(int statusId) {
@@ -31,5 +26,9 @@ public class AccountController {
 		
 		public List<Account> findAccountByUserId(int id) {
 			return accountService.findAccountByUserId(id);
+		}
+		
+		public int createAccount(Account a) {
+			return accountService.createAccount(a);
 		}
 }

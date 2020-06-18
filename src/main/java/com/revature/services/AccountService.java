@@ -25,4 +25,8 @@ public class AccountService {
 	public List<Account> findAccountByUserId(int id) {
 		return adao.findAccountByUserId(id);
 	}
+	
+	public int createAccount(Account a) {
+		return adao.createAccount(a);
+	}
 }

@@ -164,6 +164,21 @@ public class AccountDAO implements IAccountDAO {
 
 	@Override
 	public int createAccount(Account a) {
+		try (Connection conn = ConnectionUtil.getConnection()){
+			int randomIdNum = (int) Math.round(Math.random()  * 200000000);
+			System.out.println(randomIdNum);
+			String sql = "INSERT INTO ACCOUNTS VALUES (" + randomIdNum + " , ?, ?, ?)";
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt.setDouble(1, a.getBalance());
+			stmt.setInt(2, a.getStatus().getStatusId());
+			stmt.setInt(3, a.getType().getTypeId());
+			
+			
+			return stmt.executeUpdate();
+			
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
 		return 0;
 	}
 
