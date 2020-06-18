@@ -243,7 +243,7 @@ public class AccountDAO implements IAccountDAO {
 		return 0;
 	}
 
-	public int withdraw(BalanceTemplate bt) {
+	public int deposit(BalanceTemplate bt) {
 		try (Connection conn = ConnectionUtil.getConnection()){
 			int accountId = bt.getAccountId();
 			double amount = bt.getAmount();
@@ -284,7 +284,6 @@ public class AccountDAO implements IAccountDAO {
 	            while(rs.next()) {
 					int userIdJoinTable = rs.getInt("user_id");
 					int accountIdJoinTable = rs.getInt("account_id");
-					System.out.println(userIdJoinTable + " " + accountIdJoinTable);
 					uaj.setUserId(userIdJoinTable);
 					uaj.setAccountId(accountIdJoinTable);
 					

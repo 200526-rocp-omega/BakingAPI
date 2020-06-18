@@ -13,6 +13,6 @@ public interface IAccountDAO {
 	public List<Account> findAccountByUserId(int id);
 	public int createAccount(Account a);
 	public int update(Account a);
-	public int withdraw(BalanceTemplate bt);
+	public int deposit(BalanceTemplate bt);
 	public int usersAccounts(int userId, int accountId);
 }

@@ -36,7 +36,7 @@ public class AccountService {
 	}
 	
 	public int withdraw(BalanceTemplate bt) {
-		return adao.withdraw(bt);
+		return adao.deposit(bt);
 	}
 	
 	public int usersAccounts(int userId, int accountId) {

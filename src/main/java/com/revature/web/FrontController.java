@@ -204,7 +204,7 @@ public class FrontController extends HttpServlet {
 					if(number == 0) {
 						System.out.println("You have successfully updated the User");
 					}
-				} else if (portions[1].equalsIgnoreCase("withdraw")) {
+				} else if (portions[1].equalsIgnoreCase("deposit")) {
 					HttpSession sessionWD = req.getSession();
 					User currentUser = (User) sessionWD.getAttribute("currentUser");
 					int sessionId = currentUser.getId();
@@ -223,7 +223,6 @@ public class FrontController extends HttpServlet {
 					BalanceTemplate bt = om.readValue(bodyWD, BalanceTemplate.class);
 					
 					int returnnumber = accountController.usersAccounts(sessionId, bt.getAccountId());
-					System.out.println("Return number is: " + returnnumber);
 					if(bt.getAmount() < 1) {
 						System.out.println("Enter an amout greater than 0");
 					} else if (returnnumber == 0){
@@ -235,7 +234,7 @@ public class FrontController extends HttpServlet {
 						System.out.println("You do NOT have access to the account");
 					}
 					
-				} else if (portions[1].toLowerCase() == "deposit") {
+				} else if (portions[1].toLowerCase() == "withdraw") {
 					
 					
 				}
