@@ -31,4 +31,8 @@ public class AccountController {
 		public int createAccount(Account a) {
 			return accountService.createAccount(a);
 		}
+		
+		public int update(Account a) {
+			return accountService.update(a);
+		}
 }

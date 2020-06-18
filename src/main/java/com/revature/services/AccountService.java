@@ -29,4 +29,8 @@ public class AccountService {
 	public int createAccount(Account a) {
 		return adao.createAccount(a);
 	}
+	
+	public int update(Account a) {
+		return adao.update(a);
+	}
 }

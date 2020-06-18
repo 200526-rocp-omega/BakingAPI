@@ -184,6 +184,59 @@ public class AccountDAO implements IAccountDAO {
 
 	@Override
 	public int update(Account a) {
+		try (Connection conn = ConnectionUtil.getConnection()){
+			int accountId = a.getAccountId();
+			
+			AccountStatus accStatus = new AccountStatus();
+			switch (a.getStatus().getStatusId()) {
+				case 1:
+					accStatus.setStatusId(a.getStatus().getStatusId());
+					accStatus.setStatus("Pending");
+					a.setStatus(accStatus);
+					break;
+				case 2:
+					accStatus.setStatusId(a.getStatus().getStatusId());
+					accStatus.setStatus("Open");
+					a.setStatus(accStatus);
+					break;
+				case 3:
+					accStatus.setStatusId(a.getStatus().getStatusId());
+					accStatus.setStatus("Closed");
+					a.setStatus(accStatus);
+					break;
+				case 4:
+					accStatus.setStatusId(a.getStatus().getStatusId());
+					accStatus.setStatus("Denied");
+					a.setStatus(accStatus);
+					break;
+			}
+			
+			AccountType accType = new AccountType();
+			if (a.getType().getTypeId() == 1) {
+				accType.setTypeId(a.getType().getTypeId());
+				accType.setType("Checking");
+				a.setType(accType);
+			} else {
+				accType.setTypeId(a.getType().getTypeId());
+				accType.setType("Savings");
+				a.setType(accType);
+			}
+
+			String sql = "UPDATE ACCOUNTS SET balance = ?, status_id = ?, type_id = ? WHERE id = ?";
+			
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt.setDouble(1, a.getBalance());
+			stmt.setInt(2, a.getStatus().getStatusId());
+			stmt.setInt(3, a.getType().getTypeId());
+			stmt.setInt(4, accountId);
+			
+			
+			return stmt.executeUpdate();
+			
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		
 		return 0;
 	}
 

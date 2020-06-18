@@ -25,6 +25,8 @@ import com.revature.models.AccountType;
 import com.revature.models.Role;
 import com.revature.models.User;
 import com.revature.services.UserService;
+import com.revature.services.AccountService;
+import com.revature.templates.AccountUpdateTemplate;
 import com.revature.templates.LoginTemplate;
 import com.revature.templates.MessageTemplate;
 
@@ -35,6 +37,7 @@ public class FrontController extends HttpServlet {
 	private static final AccountController accountController = new AccountController();
 	private static final ObjectMapper om = new ObjectMapper();
 	private UserService service = new UserService();
+	private AccountService accservice = new AccountService();
 	//private UserService service = new UserService();
 	
 	@Override
@@ -129,8 +132,8 @@ public class FrontController extends HttpServlet {
 
 				BufferedReader reader = req.getReader();
 				StringBuilder sb = new StringBuilder();
+				
 				String line;
-
 				while( (line = reader.readLine()) != null ) {
 					sb.append(line);
 				}
@@ -193,7 +196,7 @@ public class FrontController extends HttpServlet {
 			Account a = new Account(0, accBalance, accStatus, accType);
 			
 			int number = accountController.createAccount(a);
-			res.setStatus(200);
+			res.setStatus(201);
 			res.getWriter().println(om.writeValueAsString(a));
 			if(number == 0) {
 				System.out.println("You have successfully updated the User");
@@ -232,16 +235,16 @@ public class FrontController extends HttpServlet {
 					int roleId = Integer.parseInt(inputData[5]);
 					switch (roleId) {
 						case 1:
-							roleName = "Pending";
+							roleName = "Standard";
 							break;
 						case 2:
-							roleName = "Open";
+							roleName = "Premium";
 							break;
 						case 3:
-							roleName = "Closed";
+							roleName = "Employee";
 							break;
 						case 4:
-							roleName = "Denied";
+							roleName = "Admin";
 							break;
 					}
 					Role role = new Role(roleId, roleName);
@@ -254,6 +257,27 @@ public class FrontController extends HttpServlet {
 						System.out.println("You have successfully updated the User");
 					}
 					
+					break;
+			
+			case "accounts":	
+					AuthService.guard(req.getSession(false), "Admin");
+					
+					BufferedReader reader = req.getReader();
+					StringBuilder sb = new StringBuilder();
+					String line;
+					while( (line = reader.readLine()) != null ) {
+						sb.append(line);
+					}
+					String body = sb.toString(); //AccountUpdateTemplate aut = om.readValue(body, AccountUpdateTemplate.class);
+					Account a = om.readValue(body, Account.class); //Account a =  new Account(aut.getId(), aut.getBalance(), aut.getStatus(), aut.getType());;
+					
+				
+				int numbera = accountController.update(a);
+				res.setStatus(201);
+				res.getWriter().println(om.writeValueAsString(a));
+				if(numbera == 0) {
+					System.out.println("You have successfully updated the User");
+				}
 					break;
 				}
 		}catch(NotLoggedInException e) {
