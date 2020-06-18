@@ -5,6 +5,7 @@ import java.util.List;
 import com.revature.dao.AccountDAO;
 import com.revature.dao.IAccountDAO;
 import com.revature.models.Account;
+import com.revature.templates.BalanceTemplate;
 
 public class AccountService {
 
@@ -32,5 +33,13 @@ public class AccountService {
 	
 	public int update(Account a) {
 		return adao.update(a);
+	}
+	
+	public int withdraw(BalanceTemplate bt) {
+		return adao.withdraw(bt);
+	}
+	
+	public int usersAccounts(int userId, int accountId) {
+		return adao.usersAccounts(userId, accountId);
 	}
 }

@@ -27,6 +27,7 @@ import com.revature.models.User;
 import com.revature.services.UserService;
 import com.revature.services.AccountService;
 import com.revature.templates.AccountUpdateTemplate;
+import com.revature.templates.BalanceTemplate;
 import com.revature.templates.LoginTemplate;
 import com.revature.templates.MessageTemplate;
 
@@ -159,48 +160,85 @@ public class FrontController extends HttpServlet {
 				break;
 			
 			case "accounts":
-				AuthService.guard(req.getSession(false), "Employee", "Admin");
-				Scanner in = new Scanner(System.in);
-				Scanner inString = new Scanner(System.in);
-				System.out.println("Enter the New Account information: balance, statusId, typeId");
-				String dataString = in.nextLine();
-				String[] inputData = dataString.split(",");
-				String status = null;
-				String type = null;
-				double accBalance = Double.parseDouble(inputData[0]);
-				int statusId = Integer.parseInt(inputData[1]);
-				int typeId = Integer.parseInt(inputData[2]);
-				switch (statusId) {
-					case 1:
-						status = "Pending";
-						break;
-					case 2:
-						status = "Open";
-						break;
-					case 3:
-						status = "Closed";
-						break;
-					case 4:
-						status = "Denied";
-						break;
-				}
-				if(typeId == 1) {
-					type = "Checking";
-				} else {
-					type =  "Savings";
-				}
+				System.out.println(portions[1]);
+				if(portions.length == 1) {
+					AuthService.guard(req.getSession(false), "Employee", "Admin");
+					Scanner in = new Scanner(System.in);
+					Scanner inString = new Scanner(System.in);
+					System.out.println("Enter the New Account information: balance, statusId, typeId");
+					String dataString = in.nextLine();
+					String[] inputData = dataString.split(",");
+					String status = null;
+					String type = null;
+					double accBalance = Double.parseDouble(inputData[0]);
+					int statusId = Integer.parseInt(inputData[1]);
+					int typeId = Integer.parseInt(inputData[2]);
+					switch (statusId) {
+						case 1:
+							status = "Pending";
+							break;
+						case 2:
+							status = "Open";
+							break;
+						case 3:
+							status = "Closed";
+							break;
+						case 4:
+							status = "Denied";
+							break;
+					}
+					if(typeId == 1) {
+						type = "Checking";
+					} else {
+						type =  "Savings";
+					}
+	
+					AccountStatus accStatus = new AccountStatus(statusId, status);
+					AccountType accType = new AccountType(typeId, type);
+		
+					Account a = new Account(0, accBalance, accStatus, accType);
+					
+					int number = accountController.createAccount(a);
+					res.setStatus(201);
+					res.getWriter().println(om.writeValueAsString(a));
+					if(number == 0) {
+						System.out.println("You have successfully updated the User");
+					}
+				} else if (portions[1].equalsIgnoreCase("withdraw")) {
+					HttpSession sessionWD = req.getSession();
+					User currentUser = (User) sessionWD.getAttribute("currentUser");
+					int sessionId = currentUser.getId();
+					AuthService.guard(req.getSession(false), sessionId, "Admin");
+					
+					BufferedReader readerWD = req.getReader();
+					StringBuilder sbWD = new StringBuilder();
+					String lineWD;
+					
+					while( (lineWD = readerWD.readLine()) != null ) {
+						sbWD.append(lineWD);
+					}
 
-			AccountStatus accStatus = new AccountStatus(statusId, status);
-			AccountType accType = new AccountType(typeId, type);
-
-			Account a = new Account(0, accBalance, accStatus, accType);
-			
-			int number = accountController.createAccount(a);
-			res.setStatus(201);
-			res.getWriter().println(om.writeValueAsString(a));
-			if(number == 0) {
-				System.out.println("You have successfully updated the User");
-			}
+					String bodyWD = sbWD.toString();
+					
+					BalanceTemplate bt = om.readValue(bodyWD, BalanceTemplate.class);
+					
+					int returnnumber = accountController.usersAccounts(sessionId, bt.getAccountId());
+					System.out.println("Return number is: " + returnnumber);
+					if(bt.getAmount() < 1) {
+						System.out.println("Enter an amout greater than 0");
+					} else if (returnnumber == 0){
+						
+						int number = accountController.withdraw(bt);
+						res.setStatus(201);
+						res.getWriter().println(om.writeValueAsString(bt));
+					} else {
+						System.out.println("You do NOT have access to the account");
+					}
+					
+				} else if (portions[1].toLowerCase() == "deposit") {
+					
+					
+				}
 				break;
 			}
 		} catch(NotLoggedInException e) {
@@ -221,57 +259,57 @@ public class FrontController extends HttpServlet {
 		try {
 			switch(portions[0]) {
 			case "users":
-					AuthService.guard(req.getSession(false), "Employee", "Admin");
-					String s;
-					Scanner in = new Scanner(System.in);
-					System.out.println("Enter the Id number");
-					s = in.nextLine();
-					int idNum = Integer.parseInt(s);
-					Scanner inString = new Scanner(System.in);
-					System.out.println("Enter the information you want to update. Follow the pattern: username, password, first name, last name, email, role(num)");
-					String dataString = in.nextLine();
-					String[] inputData = dataString.split(",");
-					String roleName = null;
-					int roleId = Integer.parseInt(inputData[5]);
-					switch (roleId) {
-						case 1:
-							roleName = "Standard";
-							break;
-						case 2:
-							roleName = "Premium";
-							break;
-						case 3:
-							roleName = "Employee";
-							break;
-						case 4:
-							roleName = "Admin";
-							break;
-					}
-					Role role = new Role(roleId, roleName);
-					User u = new User(idNum, inputData[0], inputData[1], inputData[2], inputData[3], inputData[4], role);
-					
-					int number = userController.update(u);
-					res.setStatus(200);
-					res.getWriter().println(om.writeValueAsString(u));
-					if(number == 0) {
-						System.out.println("You have successfully updated the User");
-					}
-					
-					break;
+				AuthService.guard(req.getSession(false), "Employee", "Admin");
+				String s;
+				Scanner in = new Scanner(System.in);
+				System.out.println("Enter the Id number");
+				s = in.nextLine();
+				int idNum = Integer.parseInt(s);
+				Scanner inString = new Scanner(System.in);
+				System.out.println("Enter the information you want to update. Follow the pattern: username, password, first name, last name, email, role(num)");
+				String dataString = in.nextLine();
+				String[] inputData = dataString.split(",");
+				String roleName = null;
+				int roleId = Integer.parseInt(inputData[5]);
+				switch (roleId) {
+					case 1:
+						roleName = "Standard";
+						break;
+					case 2:
+						roleName = "Premium";
+						break;
+					case 3:
+						roleName = "Employee";
+						break;
+					case 4:
+						roleName = "Admin";
+						break;
+				}
+				Role role = new Role(roleId, roleName);
+				User u = new User(idNum, inputData[0], inputData[1], inputData[2], inputData[3], inputData[4], role);
+				
+				int number = userController.update(u);
+				res.setStatus(200);
+				res.getWriter().println(om.writeValueAsString(u));
+				if(number == 0) {
+					System.out.println("You have successfully updated the User");
+				}
+				
+				break;
 			
 			case "accounts":	
-					AuthService.guard(req.getSession(false), "Admin");
-					
-					BufferedReader reader = req.getReader();
-					StringBuilder sb = new StringBuilder();
-					String line;
-					while( (line = reader.readLine()) != null ) {
-						sb.append(line);
-					}
-					String body = sb.toString(); //AccountUpdateTemplate aut = om.readValue(body, AccountUpdateTemplate.class);
-					Account a = om.readValue(body, Account.class); //Account a =  new Account(aut.getId(), aut.getBalance(), aut.getStatus(), aut.getType());;
-					
+				AuthService.guard(req.getSession(false), "Admin");
 				
+				BufferedReader reader = req.getReader();
+				StringBuilder sb = new StringBuilder();
+				String line;
+				while( (line = reader.readLine()) != null ) {
+					sb.append(line);
+				}
+				String body = sb.toString();
+				Account a = om.readValue(body, Account.class);
+				
+			
 				int numbera = accountController.update(a);
 				res.setStatus(201);
 				res.getWriter().println(om.writeValueAsString(a));

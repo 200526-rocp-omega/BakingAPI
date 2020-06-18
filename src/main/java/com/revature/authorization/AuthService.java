@@ -42,4 +42,13 @@ public class AuthService {
 		
 	}
 	
+	public static User guard(HttpSession session) {
+		User currentUser = session == null ? null : (User) session.getAttribute("currentUser");
+		if(session == null || currentUser == null) {
+			throw new NotLoggedInException();
+		}
+		
+		return currentUser;
+	}
+	
 }

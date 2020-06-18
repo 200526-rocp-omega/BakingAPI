@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.revature.models.Account;
 import com.revature.services.AccountService;
+import com.revature.templates.BalanceTemplate;
 
 public class AccountController {
 
@@ -34,5 +35,13 @@ public class AccountController {
 		
 		public int update(Account a) {
 			return accountService.update(a);
+		}
+		
+		public int withdraw(BalanceTemplate bt) {
+			return accountService.withdraw(bt);
+		}
+		
+		public int usersAccounts(int userId, int accountId) {
+			return accountService.usersAccounts(userId, accountId);
 		}
 }

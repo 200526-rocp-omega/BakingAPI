@@ -11,6 +11,9 @@ import java.util.List;
 import com.revature.models.Account;
 import com.revature.models.AccountStatus;
 import com.revature.models.AccountType;
+import com.revature.models.User;
+import com.revature.models.UserAccountJoin;
+import com.revature.templates.BalanceTemplate;
 import com.revature.util.ConnectionUtil;
 
 public class AccountDAO implements IAccountDAO {
@@ -240,4 +243,63 @@ public class AccountDAO implements IAccountDAO {
 		return 0;
 	}
 
+	public int withdraw(BalanceTemplate bt) {
+		try (Connection conn = ConnectionUtil.getConnection()){
+			int accountId = bt.getAccountId();
+			double amount = bt.getAmount();
+			double balance;
+			
+			Account account = findAccountById(accountId);
+			
+			String sql = "UPDATE ACCOUNTS SET balance = ? WHERE id = ?";
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			double total = account.getBalance() + amount;
+			stmt.setDouble(1, total);
+			stmt.setInt(2, accountId);
+			
+			stmt.executeUpdate();
+			
+			Account accountUpdated = findAccountById(accountId);
+			
+			System.out.println("Success!! Your current balance is: " + accountUpdated.getBalance());
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		return 0;
+	}
+	
+	public int usersAccounts(int userId, int accountId) {
+		UserAccountJoin uaj = new UserAccountJoin();
+		try (Connection conn = ConnectionUtil.getConnection()) {
+	            String sql = "SELECT * FROM USERS_ACCOUNTS WHERE user_id = ? AND account_id = ?";
+	            PreparedStatement stmt = conn.prepareStatement(sql);
+	            stmt.setInt(1, userId);
+	            stmt.setInt(2, accountId);
+	            
+	            ResultSet rs = stmt.executeQuery();
+	            
+	            while(rs.next()) {
+					int userIdJoinTable = rs.getInt("user_id");
+					int accountIdJoinTable = rs.getInt("account_id");
+					System.out.println(userIdJoinTable + " " + accountIdJoinTable);
+					uaj.setUserId(userIdJoinTable);
+					uaj.setAccountId(accountIdJoinTable);
+					
+	            }
+	            
+	            if (uaj.getUserId() == 0 || uaj.getAccountId() == 0) {
+	            	return 1;
+	            } else {
+	            	return 0;
+	            }
+
+	            	
+		} catch (SQLException e){
+			e.printStackTrace();
+			return 1;
+		}
+	}
 }
