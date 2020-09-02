@@ -20,8 +20,8 @@ public class ConnectionUtil {
 			try {
 				conn = DriverManager.getConnection(
 						"jdbc:oracle:thin:@training.cqjnlnexi0ao.us-east-2.rds.amazonaws.com:1521:ORCL",
-						"beaver",
-						"chew");
+						"******",
+						"******");
 				
 			}catch(SQLException e) {
 				e.printStackTrace();
