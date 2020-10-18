@@ -10,7 +10,7 @@ public class Driver {
 	public static void main(String[] args) {
 		IUserDAO dao = new UserDAO();
 		
-		User user = new User(0, "miryb4", "passwordmiry4", "Miry4", "Brach4", "miry4@yahoo.com", new Role(2,"Admin"));
+		User user = new User(0, "username", "password", "nickname", "nickname2", "email", new Role(2,"Admin"));
 		System.out.println(dao.insert(user));
 		
 		for(User u : dao.findAll()) {
